@@ -558,7 +558,7 @@
           <div><label for="email">Email</label><input type="email" id="email" name="email" required></div>
           <div>
             <label for="industry">What industry are you in?</label>
-            <select id="industry" name="industry" required>
+            <select id="industry" name="industry">
               <option value="">Select your industry</option>
               <option>Property Management</option>
               <option>HOA / Condo Vendor</option>
@@ -584,7 +584,10 @@
               <label for="county">County</label>
               <select id="county" name="county">
                 <option value="">Select county</option>
-                <option>Miami-Dade</option><option>Broward</option><option>Palm Beach</option><option>Multiple Counties</option>
+                <option>Multiple Counties</option>
+                <option>Miami-Dade</option>
+                <option>Broward</option>
+                <option>Palm Beach</option>
               </select>
             </div>
           </div>
@@ -610,8 +613,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-  emailjs.init('wBt6mCoV5vO52kGGz');
-
   document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const f = this;
@@ -626,6 +627,11 @@
     const county   = f.county.value;
     const notes    = f.notes.value.trim();
 
+    if (!fname || !email) {
+      alert('Please fill in your first name and email.');
+      return;
+    }
+
     const message = [
       `Name: ${fname}${lname ? ' ' + lname : ''}`,
       `Company: ${company || '—'}`,
@@ -639,19 +645,25 @@
     btn.textContent = 'Sending…';
     btn.disabled = true;
 
-    emailjs.send('service_1sc3idd', 'template_v6lra77', {
-      subject: `77 Analytics — Call Request from ${fname}${lname ? ' ' + lname : ''} (${industry || 'Unknown Industry'})`,
-      message: message,
-      reply_to: email
-    })
+    emailjs.send(
+      'service_1sc3idd',
+      'template_v6lra77',
+      {
+        subject: `77 Analytics — Call Request from ${fname}${lname ? ' ' + lname : ''} (${industry || 'Unknown Industry'})`,
+        message: message,
+        reply_to: email
+      },
+      'wBt6mCoV5vO52kGGz'
+    )
     .then(() => {
       document.getElementById('successMsg').style.display = 'block';
       f.querySelectorAll('input,select,textarea').forEach(el => el.disabled = true);
+      btn.textContent = 'Sent ✓';
     })
     .catch((err) => {
       btn.textContent = 'Request a Call';
       btn.disabled = false;
-      alert('Something went wrong — please try again or email us directly.');
+      alert('Something went wrong — please try again.');
       console.error('EmailJS error:', err);
     });
   });
